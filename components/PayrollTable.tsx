@@ -151,18 +151,16 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
                         })}
                     </tbody>
                     <tfoot className="bg-gray-100 font-bold text-gray-800">
-                        {/* Totals Row */}
                         <tr className="border-t-2 border-frida-teal">
                             <td className="p-4 text-frida-teal font-serif text-lg">TOTALS</td>
                             <td className="p-4 text-right">-</td>
                             <td className="p-4 text-right">{totals.totalHours.toFixed(1)}</td>
-                            <td className="p-4 text-right">-</td> {/* OT Hours Total not tracked in context yet, skipping for now */}
+                            <td className="p-4 text-right">-</td>
                             <td className="p-4 text-right">${totals.totalBasePay.toFixed(2)}</td>
                             <td className="p-4 text-right">${totals.totalTips.toFixed(2)}</td>
                             <td className="p-4 text-right text-frida-pink text-xl">${totals.grandTotal.toFixed(2)}</td>
                             <td className="p-4"></td>
                         </tr>
-                        {/* Averages Row */}
                         <tr className="bg-gray-50 text-sm text-gray-600">
                             <td className="p-4 font-serif italic">Average</td>
                             <td className="p-4 text-right">${totals.avgWage.toFixed(2)}</td>
