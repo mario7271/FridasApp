@@ -39,7 +39,7 @@ const ReportsPage: React.FC = () => {
       
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       
-      const fileName = `Fridas_Payroll_${ new Date().toISOString().split('T')[0] }.pdf`;
+      const fileName = "Fridas_Payroll_" + new Date().toISOString().split('T')[0] + ".pdf";
 
       // 3. Share or Download
       // Create a blob for sharing
@@ -95,8 +95,8 @@ const ReportsPage: React.FC = () => {
           <div className="text-center mb-6 border-b-2 border-black pb-4">
                     <h1 className="text-3xl font-serif font-bold uppercase tracking-widest">Frida's Payroll</h1>
                     <div className="mt-2 flex justify-between items-end">
-                        <span className="font-bold text-lg">Period: <span className="capitalize">{timeFrame}</span></span>
-                        <span className="text-sm">Generated: {new Date().toLocaleDateString()}</span>
+                         <span className="font-bold text-lg">Period: <span className="capitalize">{timeFrame}</span></span>
+                         <span className="text-sm">Generated: {new Date().toLocaleDateString()}</span>
                     </div>
                 </div>
 
