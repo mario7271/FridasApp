@@ -17,11 +17,11 @@ const EmployeeContext = createContext<EmployeeContextType | undefined>(undefined
 
 // Updated initial data with new schema
 const INITIAL_EMPLOYEES: Employee[] = [
-    { id: '1', name: 'Diego Rivera', hourlyWage: 25.50, hoursWorked: 40, overtimeHours: 5, tips: 200.00, isActive: true, address: '123 Mural St', ssn: '***-**-1111' },
-    { id: '2', name: 'Cristina Kahlo', hourlyWage: 18.00, hoursWorked: 35, overtimeHours: 0, tips: 180.50, isActive: true },
-    { id: '3', name: 'Maria Izquierdo', hourlyWage: 20.00, hoursWorked: 42, overtimeHours: 2, tips: 250.00, isActive: true },
-    { id: '4', name: 'Chavela Vargas', hourlyWage: 22.00, hoursWorked: 20, overtimeHours: 0, tips: 300.00, isActive: true },
-    { id: '5', name: 'Juan O Gorman', hourlyWage: 16.50, hoursWorked: 45, overtimeHours: 3, tips: 100.00, isActive: false },
+    { id: '1', name: 'Diego Rivera', hourlyWage: 25.50, hoursWorked: 40, overtimeHours: 5, tips: 200.00, isActive: true, address: '123 Mural St', cityStateZip: 'Mexico City, CDMX 12345', ssn: '***-**-1111', dependents: 2 },
+    { id: '2', name: 'Cristina Kahlo', hourlyWage: 18.00, hoursWorked: 35, overtimeHours: 0, tips: 180.50, isActive: true, dependents: 0 },
+    { id: '3', name: 'Maria Izquierdo', hourlyWage: 20.00, hoursWorked: 42, overtimeHours: 2, tips: 250.00, isActive: true, dependents: 1 },
+    { id: '4', name: 'Chavela Vargas', hourlyWage: 22.00, hoursWorked: 20, overtimeHours: 0, tips: 300.00, isActive: true, dependents: 0 },
+    { id: '5', name: 'Juan O Gorman', hourlyWage: 16.50, hoursWorked: 45, overtimeHours: 3, tips: 100.00, isActive: false, dependents: 3 },
 ];
 
 export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {

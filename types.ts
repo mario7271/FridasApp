@@ -7,8 +7,11 @@ export interface Employee {
     overtimeHours: number;
     tips: number;
     isActive: boolean;
-    address?: string;
+    address?: string; // Street
+    cityStateZip?: string; // City, State, Zip
     ssn?: string;
+    dependents?: number;
+    signature?: string; // Base64 image
 }
 
 
