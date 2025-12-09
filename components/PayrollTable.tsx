@@ -46,7 +46,7 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
         <thead className="bg-gray-700 text-white font-serif uppercase text-sm tracking-wider">
             <tr>
                 <th className="p-4 rounded-tl-xl">BOH Employee</th>
-                <th className="p-4 text-right" colSpan={4}></th> {/* Spacers */}
+                <th className="p-4 text-right" colSpan={4}></th>
                 <th className="p-4 text-right bg-gray-800/30">Base Salary</th>
                 <th className="p-4 text-right font-bold text-frida-yellow bg-gray-800/50">Total</th>
                 <th className="p-4 text-center rounded-tr-xl">Actions</th>
@@ -175,7 +175,6 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
                                     return (
                                         <tr key={emp.id} className="bg-white border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
                                             <td className="p-4 font-bold text-gray-800">{emp.name}</td>
-                                            {/* Spacer Cells to align with Base Earn column somewhat or just use colspan */}
                                             <td className="p-4" colSpan={4}>
                                                 <div className="text-xs text-center text-gray-300 uppercase tracking-widest">Base Salary Only</div>
                                             </td>
@@ -184,9 +183,14 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
                                                 <div className="flex items-center bg-gray-50 rounded-lg p-2 border border-gray-200 focus-within:border-frida-teal w-32 ml-auto">
                                                     <span className="text-gray-400 font-serif mr-1">$</span>
                                                     <input
-                                                        type="number"
-                                                        value={emp.salary || 0}
-                                                        onChange={(e) => onUpdateEmployee(emp.id, 'salary', parseFloat(e.target.value) || 0)}
+                                                        type="text"
+                                                        value={(emp.salary || 0).toLocaleString()}
+                                                        onChange={(e) => {
+                                                            const rawValue = e.target.value.replace(/,/g, '');
+                                                            if (!isNaN(Number(rawValue))) {
+                                                                onUpdateEmployee(emp.id, 'salary', parseFloat(rawValue) || 0);
+                                                            }
+                                                        }}
                                                         className="w-full bg-transparent outline-none text-right font-bold"
                                                     />
                                                 </div>
