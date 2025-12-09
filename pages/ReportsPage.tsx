@@ -18,13 +18,36 @@ const ReportsPage: React.FC = () => {
 
         setIsGenerating(true);
         try {
+            // FIX: Force desktop layout for PDF even on mobile
+            // Strategy: Clone the node, force a fixed width (e.g. 1200px), append to body offscreen
+            const originalElement = summaryRef.current;
+            const clone = originalElement.cloneNode(true) as HTMLElement;
+
+            // Apply styles to force desktop view
+            clone.style.width = '1200px';
+            clone.style.position = 'absolute';
+            clone.style.top = '-9999px';
+            clone.style.left = '-9999px';
+            clone.style.backgroundColor = 'white'; // Ensure background
+
+            // We need to ensure Tailwind classes are respected. 
+            // Appending to body should generally inherit global styles if they are not scoped.
+            // However, spacing might differ if media queries are based on viewport.
+            // Since we set width to 1200px, container queries inside might not trigger unless we use viewport simulation,
+            // but for a simple table it should be enough to just force the container width.
+            document.body.appendChild(clone);
+
             // 1. Capture the report as an image
-            const canvas = await html2canvas(summaryRef.current, {
+            const canvas = await html2canvas(clone, {
                 scale: 2, // Retain high quality
                 useCORS: true,
                 logging: false,
-                backgroundColor: '#ffffff'
+                backgroundColor: '#ffffff',
+                windowWidth: 1200 // Trick html2canvas to think window is wide
             } as any);
+
+            // Cleanup
+            document.body.removeChild(clone);
 
             // 2. Convert to PDF
             const imgData = canvas.toDataURL('image/png');
@@ -108,17 +131,17 @@ const ReportsPage: React.FC = () => {
                                 <th className="border border-black p-2 text-right">Wage/Hr</th>
                                 <th className="border border-black p-2 text-center">Hours</th>
                                 <th className="border border-black p-2 text-center">OT Hours</th>
-                                <th className="border border-black p-2 text-right">Total Earn (Base)</th>
+                                <th className="border border-black p-2 text-right">Base Earn</th>
                                 <th className="border border-black p-2 text-right">Tips</th>
-                                <th className="border border-black p-2 text-right">Overtime Pay</th>
-                                <th className="border border-black p-2 text-right bg-black text-white print:bg-gray-300 print:text-black">Total w/ Tips</th>
+                                <th className="border border-black p-2 text-right bg-black text-white print:bg-gray-300 print:text-black">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             {activeEmployees.map((emp, index) => {
-                                const baseEarn = emp.hoursWorked * emp.hourlyWage;
+                                const regularPay = emp.hoursWorked * emp.hourlyWage;
                                 const otPay = (emp.overtimeHours || 0) * emp.hourlyWage * 1.5;
-                                const totalWithTip = baseEarn + (emp.tips || 0) + otPay;
+                                const baseEarn = regularPay + otPay;
+                                const total = baseEarn + (emp.tips || 0);
 
                                 return (
                                     <tr key={emp.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
@@ -130,8 +153,7 @@ const ReportsPage: React.FC = () => {
                                         <td className="border border-black p-2 text-center">{emp.overtimeHours || 0}</td>
                                         <td className="border border-black p-2 text-right">${baseEarn.toFixed(2)}</td>
                                         <td className="border border-black p-2 text-right">${(emp.tips || 0).toFixed(2)}</td>
-                                        <td className="border border-black p-2 text-right">${otPay.toFixed(2)}</td>
-                                        <td className="border border-black p-2 text-right font-bold">${totalWithTip.toFixed(2)}</td>
+                                        <td className="border border-black p-2 text-right font-bold">${total.toFixed(2)}</td>
                                     </tr>
                                 );
                             })}
@@ -144,7 +166,6 @@ const ReportsPage: React.FC = () => {
                                 <td className="border border-black p-2 text-center">-</td>
                                 <td className="border border-black p-2 text-right">${totals.totalBasePay.toFixed(2)}</td>
                                 <td className="border border-black p-2 text-right">${totals.totalTips.toFixed(2)}</td>
-                                <td className="border border-black p-2 text-right">${totals.totalOvertimePay.toFixed(2)}</td>
                                 <td className="border border-black p-2 text-right text-lg">${totals.grandTotal.toFixed(2)}</td>
                             </tr>
                         </tfoot>

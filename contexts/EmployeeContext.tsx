@@ -41,7 +41,7 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
         return INITIAL_EMPLOYEES;
     });
 
-    const [timeFrame, setTimeFrame] = useState<TimeFrame>('week');
+    const [timeFrame, setTimeFrame] = useState<TimeFrame>('biweekly');
 
     useEffect(() => {
         localStorage.setItem('fridas_payroll_data', JSON.stringify(employees));
@@ -58,17 +58,20 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
 
         const res = active.reduce((acc, emp) => {
-            const basePay = emp.hourlyWage * (emp.hoursWorked || 0);
-            // New Logic: 1.5x for overtime
+            // New Logic: Base Earn includes Regular hours + Overtime Pay
+            const regularPay = emp.hourlyWage * (emp.hoursWorked || 0);
             const otHours = emp.overtimeHours || 0;
             const otPay = otHours * emp.hourlyWage * 1.5;
 
+            const baseEarn = regularPay + otPay; // Now Base Earn includes both
+
             return {
                 totalHours: acc.totalHours + (emp.hoursWorked || 0),
-                totalBasePay: acc.totalBasePay + basePay,
-                totalOvertimePay: acc.totalOvertimePay + otPay,
+                totalBasePay: acc.totalBasePay + baseEarn, // Updated semantic: totalBasePay = sum of Base Earns
+                totalOvertimePay: acc.totalOvertimePay + otPay, // Still tracking distinct OT pay technically but base includes it? 
+                // Wait, if totalBasePay includes OT, then grandTotal should be totalBasePay + Tips
                 totalTips: acc.totalTips + (emp.tips || 0),
-                grandTotal: acc.grandTotal + basePay + otPay + (emp.tips || 0),
+                grandTotal: acc.grandTotal + baseEarn + (emp.tips || 0),
                 hourlyWageSum: acc.hourlyWageSum + emp.hourlyWage
             };
         }, { totalHours: 0, totalBasePay: 0, totalOvertimePay: 0, totalTips: 0, grandTotal: 0, hourlyWageSum: 0 });

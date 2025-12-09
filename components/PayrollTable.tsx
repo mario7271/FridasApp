@@ -40,9 +40,17 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
                     </thead>
                     <tbody className="divide-y divide-gray-100 font-sans">
                         {employees.map((emp) => {
-                            const baseEarn = emp.hoursWorked * emp.hourlyWage;
-                            const otPay = (emp.overtimeHours || 0) * emp.hourlyWage * 1.5;
-                            const totalWithTip = baseEarn + (emp.tips || 0) + otPay;
+                            const wage = emp.hourlyWage || 0;
+                            const hours = emp.hoursWorked || 0;
+                            const overtimeHours = emp.overtimeHours || 0;
+                            const tips = emp.tips || 0;
+
+                            const regularPay = wage * hours;
+                            const otPay = overtimeHours * wage * 1.5;
+
+                            // UPDATED: Base Earn includes regularPay + otPay
+                            const baseEarn = regularPay + otPay;
+                            const total = baseEarn + tips;
 
                             if (!emp.isActive) {
                                 return (
@@ -72,79 +80,79 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
                             }
 
                             return (
-                                <tr key={emp.id} className="hover:bg-rose-50/50 transition-colors group">
-                                    <td className="p-4 font-bold text-frida-teal">{emp.name}</td>
-                                    <td className="p-4 text-right">
-                                        <div className="relative">
-                                            <span className="absolute left-2 top-1.5 text-gray-400 text-xs pointer-events-none">$</span>
+                                <tr key={emp.id} className={`bg-white border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors`}>
+                                    <td className="p-4">
+                                        <div className="font-bold text-gray-800">{emp.name}</div>
+                                    </td>
+                                    <td className="p-4">
+                                        <div className="flex items-center bg-gray-50 rounded-lg p-2 border border-gray-200 focus-within:border-frida-teal focus-within:ring-2 focus-within:ring-frida-teal/20 transition-all w-28">
+                                            <span className="text-gray-400 font-serif mr-1">$</span>
                                             <input
                                                 type="number"
-                                                min="0"
-                                                step="0.50"
                                                 value={emp.hourlyWage}
-                                                onFocus={handleFocus}
                                                 onChange={(e) => onUpdateEmployee(emp.id, 'hourlyWage', parseFloat(e.target.value) || 0)}
-                                                className="w-24 text-right border border-gray-300 rounded-md p-1 pl-4 focus:ring-2 focus:ring-frida-pink focus:border-transparent outline-none transition-shadow"
+                                                className="w-full bg-transparent outline-none font-medium text-gray-700 text-right"
                                             />
                                         </div>
                                     </td>
-                                    <td className="p-4 text-right">
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            step="0.5"
-                                            value={emp.hoursWorked}
-                                            onFocus={handleFocus}
-                                            onChange={(e) => onUpdateEmployee(emp.id, 'hoursWorked', parseFloat(e.target.value) || 0)}
-                                            className="w-20 text-right border border-gray-300 rounded-md p-1 focus:ring-2 focus:ring-frida-pink focus:border-transparent outline-none transition-shadow font-medium"
-                                        />
+                                    <td className="p-4">
+                                        <div className="flex items-center bg-gray-50 rounded-lg p-2 border border-gray-200 focus-within:border-frida-teal focus-within:ring-2 focus-within:ring-frida-teal/20 transition-all w-24 mx-auto">
+                                            <input
+                                                type="number"
+                                                value={emp.hoursWorked}
+                                                onChange={(e) => onUpdateEmployee(emp.id, 'hoursWorked', parseFloat(e.target.value) || 0)}
+                                                className="w-full bg-transparent outline-none font-medium text-gray-700 text-center"
+                                            />
+                                        </div>
                                     </td>
-                                    <td className="p-4 text-right">
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            step="0.5"
-                                            value={emp.overtimeHours || 0}
-                                            onFocus={handleFocus}
-                                            onChange={(e) => onUpdateEmployee(emp.id, 'overtimeHours', parseFloat(e.target.value) || 0)}
-                                            className="w-20 text-right border border-orange-200 bg-orange-50/30 rounded-md p-1 focus:ring-2 focus:ring-frida-orange focus:border-transparent outline-none transition-shadow font-medium text-frida-orange"
-                                        />
+                                    <td className="p-4">
+                                        <div className="flex items-center bg-gray-50 rounded-lg p-2 border border-red-100 focus-within:border-frida-orange focus-within:ring-2 focus-within:ring-frida-orange/20 transition-all w-24 mx-auto">
+                                            <input
+                                                type="number"
+                                                value={emp.overtimeHours || 0}
+                                                onChange={(e) => onUpdateEmployee(emp.id, 'overtimeHours', parseFloat(e.target.value) || 0)}
+                                                className="w-full bg-transparent outline-none font-bold text-frida-orange text-center"
+                                                placeholder="0"
+                                            />
+                                        </div>
                                     </td>
-                                    <td className="p-4 text-right font-medium text-gray-700 bg-gray-50/50">
+                                    {/* Base Earn now includes Regular + OT Pay */}
+                                    <td className="p-4 text-right font-medium text-gray-600">
                                         ${baseEarn.toFixed(2)}
                                     </td>
-                                    <td className="p-4 text-right">
-                                        <div className="relative">
-                                            <span className="absolute left-2 top-1.5 text-gray-400 text-xs pointer-events-none">$</span>
+                                    <td className="p-4">
+                                        <div className="flex items-center bg-gray-50 rounded-lg p-2 border border-green-100 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-500/20 transition-all w-24 ml-auto">
+                                            <span className="text-green-500 font-serif mr-1">$</span>
                                             <input
                                                 type="number"
-                                                min="0"
-                                                step="1.00"
-                                                value={emp.tips}
-                                                onFocus={handleFocus}
+                                                value={emp.tips || 0}
                                                 onChange={(e) => onUpdateEmployee(emp.id, 'tips', parseFloat(e.target.value) || 0)}
-                                                className="w-24 text-right border border-gray-300 rounded-md p-1 pl-4 focus:ring-2 focus:ring-frida-pink focus:border-transparent outline-none transition-shadow"
+                                                className="w-full bg-transparent outline-none font-bold text-green-600 text-right"
                                             />
                                         </div>
                                     </td>
-                                    <td className="p-4 text-right font-bold text-frida-pink text-lg bg-pink-50/50 group-hover:bg-pink-100/50 transition-colors">
-                                        ${totalWithTip.toFixed(2)}
+                                    <td className="p-4 text-right">
+                                        <div className="font-bold text-xl text-frida-pink font-serif">
+                                            ${total.toFixed(2)}
+                                        </div>
                                     </td>
-                                    <td className="p-4 text-center flex justify-center gap-2">
-                                        <button
-                                            onClick={() => onToggleActive(emp.id)}
-                                            className="p-2 text-gray-500 hover:text-frida-blue hover:bg-indigo-50 rounded-full transition-colors"
-                                            title="Deactivate"
-                                        >
-                                            <EyeOff className="w-5 h-5" />
-                                        </button>
-                                        <button
-                                            onClick={() => onRemoveEmployee(emp.id)}
-                                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                                            title="Delete"
-                                        >
-                                            <Trash2 className="w-5 h-5" />
-                                        </button>
+                                    <td className="p-4 text-center">
+                                        <div className="flex justify-center gap-2">
+                                            <button
+                                                onClick={() => onToggleActive(emp.id)}
+                                                className={`p-2 rounded-lg transition-colors ${emp.isActive ? 'text-gray-400 hover:text-red-500 hover:bg-red-50' : 'text-green-500 hover:bg-green-50'}`}
+                                                title={emp.isActive ? "Deactivate" : "Activate"}
+                                            >
+                                                {emp.isActive ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            </button>
+                                            <button
+                                                onClick={() => onRemoveEmployee(emp.id)}
+                                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                title="Remove"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             );
@@ -154,8 +162,8 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
                         <tr className="border-t-2 border-frida-teal">
                             <td className="p-4 text-frida-teal font-serif text-lg">TOTALS</td>
                             <td className="p-4 text-right">-</td>
-                            <td className="p-4 text-right">{totals.totalHours.toFixed(1)}</td>
-                            <td className="p-4 text-right">-</td>
+                            <td className="p-4 text-center">{totals.totalHours.toFixed(1)}</td>
+                            <td className="p-4 text-center">-</td>
                             <td className="p-4 text-right">${totals.totalBasePay.toFixed(2)}</td>
                             <td className="p-4 text-right">${totals.totalTips.toFixed(2)}</td>
                             <td className="p-4 text-right text-frida-pink text-xl">${totals.grandTotal.toFixed(2)}</td>
@@ -164,12 +172,12 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
                         <tr className="bg-gray-50 text-sm text-gray-600">
                             <td className="p-4 font-serif italic">Average</td>
                             <td className="p-4 text-right">${totals.avgWage.toFixed(2)}</td>
-                            <td className="p-4 text-right">
+                            <td className="p-4 text-center">
                                 {employees.filter(e => e.isActive).length > 0
                                     ? (totals.totalHours / employees.filter(e => e.isActive).length).toFixed(1)
                                     : 0}
                             </td>
-                            <td className="p-4 text-right">-</td>
+                            <td className="p-4 text-center">-</td>
                             <td className="p-4 text-right">
                                 ${employees.filter(e => e.isActive).length > 0
                                     ? (totals.totalBasePay / employees.filter(e => e.isActive).length).toFixed(2)
