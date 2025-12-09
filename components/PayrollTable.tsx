@@ -43,7 +43,7 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
 
     // Reusable Header for BOH (Simpler columns)
     const BOHHeader = () => (
-        <thead className="bg-gray-700 text-white font-serif uppercase text-sm tracking-wider">
+        <thead className="bg-frida-pink text-white font-serif uppercase text-sm tracking-wider">
             <tr>
                 <th className="p-4 rounded-tl-xl">BOH Employee</th>
                 <th className="p-4 text-right" colSpan={4}></th>
