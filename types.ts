@@ -1,4 +1,4 @@
-export type TimeFrame = 'day' | 'week' | 'month' | 'year';
+export type TimeFrame = 'day' | 'week' | 'biweekly' | 'month' | 'year';
 export interface Employee {
     id: string;
     name: string;
