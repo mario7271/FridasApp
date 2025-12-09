@@ -137,26 +137,54 @@ const ReportsPage: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {activeEmployees.map((emp, index) => {
-                                const regularPay = emp.hoursWorked * emp.hourlyWage;
-                                const otPay = (emp.overtimeHours || 0) * emp.hourlyWage * 1.5;
-                                const baseEarn = regularPay + otPay;
-                                const total = baseEarn + (emp.tips || 0);
-
-                                return (
-                                    <tr key={emp.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                        <td className="border border-black p-2 font-medium">
-                                            {emp.name}
-                                        </td>
-                                        <td className="border border-black p-2 text-right">${emp.hourlyWage.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                        <td className="border border-black p-2 text-center">{emp.hoursWorked}</td>
-                                        <td className="border border-black p-2 text-center">{emp.overtimeHours || 0}</td>
-                                        <td className="border border-black p-2 text-right">${baseEarn.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                        <td className="border border-black p-2 text-right">${(emp.tips || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                        <td className="border border-black p-2 text-right font-bold">${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            {/* --- FOH SECTION --- */}
+                            {activeEmployees.filter(e => (!e.role || e.role === 'FOH')).length > 0 && (
+                                <>
+                                    <tr className="bg-gray-200">
+                                        <td colSpan={7} className="p-2 font-bold uppercase tracking-widest text-center text-xs text-gray-600">Front of House (FOH)</td>
                                     </tr>
-                                );
-                            })}
+                                    {activeEmployees.filter(e => (!e.role || e.role === 'FOH')).map((emp, index) => {
+                                        const regularPay = emp.hoursWorked * emp.hourlyWage;
+                                        const otPay = (emp.overtimeHours || 0) * emp.hourlyWage * 1.5;
+                                        const baseEarn = regularPay + otPay;
+                                        const total = baseEarn + (emp.tips || 0);
+
+                                        return (
+                                            <tr key={emp.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                                <td className="border border-black p-2 font-medium">{emp.name}</td>
+                                                <td className="border border-black p-2 text-right">${emp.hourlyWage.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                <td className="border border-black p-2 text-center">{emp.hoursWorked}</td>
+                                                <td className="border border-black p-2 text-center">{emp.overtimeHours || 0}</td>
+                                                <td className="border border-black p-2 text-right">${baseEarn.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                <td className="border border-black p-2 text-right">${(emp.tips || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                <td className="border border-black p-2 text-right font-bold">${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </>
+                            )}
+
+                            {/* --- BOH SECTION --- */}
+                            {activeEmployees.filter(e => e.role === 'BOH').length > 0 && (
+                                <>
+                                    <tr className="bg-gray-200">
+                                        <td colSpan={7} className="p-2 font-bold uppercase tracking-widest text-center text-xs text-gray-600">Back of House (BOH)</td>
+                                    </tr>
+                                    {activeEmployees.filter(e => e.role === 'BOH').map((emp, index) => {
+                                        const total = emp.salary || 0;
+                                        return (
+                                            <tr key={emp.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                                <td className="border border-black p-2 font-medium">{emp.name}</td>
+                                                {/* Skip visual columns for BOH, merge them or leave empty */}
+                                                <td className="border border-black p-2 text-center text-gray-400" colSpan={3}>-</td>
+                                                <td className="border border-black p-2 text-right">${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                <td className="border border-black p-2 text-center">-</td>
+                                                <td className="border border-black p-2 text-right font-bold">${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </>
+                            )}
                         </tbody>
                         <tfoot>
                             <tr className="bg-black text-white print:bg-black print:text-white font-bold">

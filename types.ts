@@ -12,6 +12,8 @@ export interface Employee {
     ssn?: string;
     dependents?: number;
     signature?: string; // Base64 image
+    role: 'FOH' | 'BOH';
+    salary?: number; // Fixed salary for BOH
 }
 
 

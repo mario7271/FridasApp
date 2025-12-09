@@ -30,7 +30,9 @@ const mapFromDB = (data: any[]): Employee[] => {
         cityStateZip: d.city_state_zip || '',
         ssn: d.ssn || '',
         dependents: Number(d.dependents || 0),
-        signature: d.signature || ''
+        signature: d.signature || '',
+        role: d.role || 'FOH',
+        salary: Number(d.salary || 0)
     }));
 };
 
@@ -42,6 +44,7 @@ const mapFieldToDB = (field: keyof Employee): string => {
         case 'overtimeHours': return 'overtime_hours';
         case 'isActive': return 'is_active';
         case 'cityStateZip': return 'city_state_zip';
+        // role and salary map directly if columns match name, but let's be explicit if needed or default
         default: return field;
     }
 };
@@ -85,10 +88,21 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
 
         const res = active.reduce((acc, emp) => {
-            const regularPay = emp.hourlyWage * (emp.hoursWorked || 0);
-            const otHours = emp.overtimeHours || 0;
-            const otPay = otHours * emp.hourlyWage * 1.5;
-            const baseEarn = regularPay + otPay;
+            let baseEarn = 0;
+            let otPay = 0;
+
+            if (emp.role === 'BOH') {
+                // BOH Logic: Base Earn is their Salary. No Overtime. No Hours multiplier.
+                // Assuming 'salary' field holds the value for the period (or we assume it's weekly/biweekly per period?)
+                // The task implies "Base Earn" is the input. So we use emp.salary as the base earn.
+                baseEarn = emp.salary || 0;
+            } else {
+                // FOH Logic
+                const regularPay = emp.hourlyWage * (emp.hoursWorked || 0);
+                const otHours = emp.overtimeHours || 0;
+                otPay = otHours * emp.hourlyWage * 1.5;
+                baseEarn = regularPay + otPay;
+            }
 
             return {
                 totalHours: acc.totalHours + (emp.hoursWorked || 0),
@@ -96,7 +110,7 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
                 totalOvertimePay: acc.totalOvertimePay + otPay,
                 totalTips: acc.totalTips + (emp.tips || 0),
                 grandTotal: acc.grandTotal + baseEarn + (emp.tips || 0),
-                hourlyWageSum: acc.hourlyWageSum + emp.hourlyWage
+                hourlyWageSum: acc.hourlyWageSum + (emp.hourlyWage || 0)
             };
         }, { totalHours: 0, totalBasePay: 0, totalOvertimePay: 0, totalTips: 0, grandTotal: 0, hourlyWageSum: 0 });
 
@@ -120,7 +134,9 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
             cityStateZip: '',
             ssn: '',
             dependents: 0,
-            signature: ''
+            signature: '',
+            role: 'FOH',
+            salary: 0
         };
 
         // Optimistic Update
@@ -134,7 +150,9 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
             hours_worked: 0,
             overtime_hours: 0,
             tips: 0,
-            is_active: true
+            is_active: true,
+            role: 'FOH',
+            salary: 0
         });
 
         if (error) {
