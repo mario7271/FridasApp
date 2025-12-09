@@ -1,38 +1,58 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '../lib/supabase';
+import { Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
     isAuthenticated: boolean;
-    login: (password: string) => boolean;
+    session: Session | null;
+    login: (email: string, password: string) => Promise<{ error: any }>;
     logout: () => void;
+    userEmail: string | undefined;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Simple hardcoded password for now - in a real app this should be env var or DB
-const APP_PASSWORD = "frida";
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-        return sessionStorage.getItem('fridas_auth') === 'true';
-    });
+    const [session, setSession] = useState<Session | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    const login = (password: string) => {
-        if (password === APP_PASSWORD) {
-            setIsAuthenticated(true);
-            sessionStorage.setItem('fridas_auth', 'true');
-            return true;
-        }
-        return false;
+    useEffect(() => {
+        // Check active session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+            setLoading(false);
+        });
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const login = async (email: string, password: string) => {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+        return { error };
     };
 
-    const logout = () => {
-        setIsAuthenticated(false);
-        sessionStorage.removeItem('fridas_auth');
+    const logout = async () => {
+        await supabase.auth.signOut();
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
-            {children}
+        <AuthContext.Provider value={{
+            isAuthenticated: !!session,
+            session,
+            login,
+            logout,
+            userEmail: session?.user?.email
+        }}>
+            {!loading && children}
         </AuthContext.Provider>
     );
 };

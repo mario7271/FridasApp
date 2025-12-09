@@ -14,6 +14,14 @@ export interface Employee {
     signature?: string; // Base64 image
     role: 'FOH' | 'BOH';
     salary?: number; // Fixed salary for BOH
+    restaurantId?: string;
+}
+
+export interface Restaurant {
+    id: string;
+    name: string;
+    location: string;
+    themeColor: string; // 'rose' | 'amber' | 'emerald' etc.
 }
 
 

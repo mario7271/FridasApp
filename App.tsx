@@ -9,30 +9,33 @@ import LoginPage from './pages/LoginPage';
 import RequireAuth from './components/RequireAuth';
 import { EmployeeProvider } from './contexts/EmployeeContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { RestaurantProvider } from './contexts/RestaurantContext';
 
 const App: React.FC = () => {
     return (
         <AuthProvider>
-            <EmployeeProvider>
-                <Router>
-                    <Routes>
-                        <Route path="/login" element={<LoginPage />} />
+            <RestaurantProvider>
+                <EmployeeProvider>
+                    <Router>
+                        <Routes>
+                            <Route path="/login" element={<LoginPage />} />
 
-                        <Route path="/" element={
-                            <RequireAuth>
-                                <Layout />
-                            </RequireAuth>
-                        }>
-                            <Route index element={<DashboardPage />} />
-                            <Route path="employees" element={<EmployeesPage />} />
-                            <Route path="employees/:id" element={<EmployeeDetailsPage />} />
-                            <Route path="reports" element={<ReportsPage />} />
-                        </Route>
+                            <Route path="/" element={
+                                <RequireAuth>
+                                    <Layout />
+                                </RequireAuth>
+                            }>
+                                <Route index element={<DashboardPage />} />
+                                <Route path="employees" element={<EmployeesPage />} />
+                                <Route path="employees/:id" element={<EmployeeDetailsPage />} />
+                                <Route path="reports" element={<ReportsPage />} />
+                            </Route>
 
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                </Router>
-            </EmployeeProvider>
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
+                    </Router>
+                </EmployeeProvider>
+            </RestaurantProvider>
         </AuthProvider>
     );
 };

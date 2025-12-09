@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { Employee, TimeFrame, PayrollTotals } from '../types';
 import { supabase } from '../lib/supabase';
+import { useRestaurant } from './RestaurantContext';
 
 interface EmployeeContextType {
     employees: Employee[];
@@ -32,7 +33,8 @@ const mapFromDB = (data: any[]): Employee[] => {
         dependents: Number(d.dependents || 0),
         signature: d.signature || '',
         role: d.role || 'FOH',
-        salary: Number(d.salary || 0)
+        salary: Number(d.salary || 0),
+        restaurantId: d.restaurant_id
     }));
 };
 
@@ -55,16 +57,24 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
     const [isLoading, setIsLoading] = useState(true);
 
     // Initial Fetch
+    const { currentRestaurant } = useRestaurant();
+
+    // Initial Fetch & Refetch when restaurant changes
     useEffect(() => {
-        fetchEmployees();
-    }, []);
+        if (currentRestaurant) {
+            fetchEmployees();
+        }
+    }, [currentRestaurant]);
 
     const fetchEmployees = async () => {
         try {
-            const { data, error } = await supabase
+            let query = supabase
                 .from('employees')
                 .select('*')
+                .eq('restaurant_id', currentRestaurant?.id) // Filter by restaurant
                 .order('name');
+
+            const { data, error } = await query;
 
             if (error) throw error;
 
@@ -136,7 +146,8 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
             dependents: 0,
             signature: '',
             role: 'FOH',
-            salary: 0
+            salary: 0,
+            restaurantId: currentRestaurant?.id
         };
 
         // Optimistic Update
@@ -152,7 +163,8 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
             tips: 0,
             is_active: true,
             role: 'FOH',
-            salary: 0
+            salary: 0,
+            restaurant_id: currentRestaurant?.id
         });
 
         if (error) {
