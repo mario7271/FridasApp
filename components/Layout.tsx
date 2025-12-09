@@ -41,14 +41,14 @@ const Layout: React.FC = () => {
                                 className={({ isActive }) => `flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? 'bg-teal-700 text-white' : 'text-teal-100 hover:bg-teal-600'}`}
                             >
                                 <Users className="w-4 h-4 mr-2" />
-                                Empleados
+                                Employees
                             </NavLink>
                             <NavLink
                                 to="/reports"
                                 className={({ isActive }) => `flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? 'bg-teal-700 text-white' : 'text-teal-100 hover:bg-teal-600'}`}
                             >
                                 <FileText className="w-4 h-4 mr-2" />
-                                Reportes
+                                Reports
                             </NavLink>
 
                             <div className="h-6 w-px bg-teal-600 mx-2"></div>
@@ -58,7 +58,7 @@ const Layout: React.FC = () => {
                                 className="flex items-center gap-2 bg-frida-pink hover:bg-pink-700 text-white px-4 py-2 rounded-full font-bold transition-all shadow-md transform hover:scale-105 active:scale-95 text-sm"
                             >
                                 <Sparkles className="w-4 h-4" />
-                                <span>Consultar AI</span>
+                                <span>Ask AI</span>
                             </button>
                         </div>
 
@@ -92,7 +92,7 @@ const Layout: React.FC = () => {
                                 className={({ isActive }) => `flex items-center px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-teal-900 text-white' : 'text-teal-100 hover:bg-teal-700'}`}
                             >
                                 <Users className="w-5 h-5 mr-3" />
-                                Empleados
+                                Employees
                             </NavLink>
                             <NavLink
                                 to="/reports"
@@ -100,7 +100,7 @@ const Layout: React.FC = () => {
                                 className={({ isActive }) => `flex items-center px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-teal-900 text-white' : 'text-teal-100 hover:bg-teal-700'}`}
                             >
                                 <FileText className="w-5 h-5 mr-3" />
-                                Reportes
+                                Reports
                             </NavLink>
                             <button
                                 onClick={() => {
@@ -110,7 +110,7 @@ const Layout: React.FC = () => {
                                 className="w-full text-left flex items-center px-3 py-2 rounded-md text-base font-medium text-frida-pink hover:bg-teal-700 mt-4"
                             >
                                 <Sparkles className="w-5 h-5 mr-3" />
-                                Consultar Frida AI
+                                Ask Frida AI
                             </button>
                         </div>
                     </div>

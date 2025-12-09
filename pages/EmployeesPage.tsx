@@ -19,7 +19,7 @@ const EmployeesPage: React.FC = () => {
                 <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-full">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                 </button>
-                <h1 className="text-xl font-bold font-sans flex-grow text-center mr-10">Lista de Empleados</h1>
+                <h1 className="text-xl font-bold font-sans flex-grow text-center mr-10">Employees List</h1>
             </div>
 
             {/* Search */}
@@ -28,7 +28,7 @@ const EmployeesPage: React.FC = () => {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <input
                         type="text"
-                        placeholder="Buscar empleado"
+                        placeholder="Search employee"
                         className="w-full pl-10 pr-4 py-3 bg-gray-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-frida-pink/20 transition-all font-sans"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -47,7 +47,7 @@ const EmployeesPage: React.FC = () => {
                                 </div>
                                 <div>
                                     <h3 className={`font-bold text-gray-800 ${!emp.isActive && 'text-gray-400'}`}>{emp.name}</h3>
-                                    <p className="text-xs text-gray-500">{emp.isActive ? 'Activo' : 'Inactivo'}</p>
+                                    <p className="text-xs text-gray-500">{emp.isActive ? 'Active' : 'Inactive'}</p>
                                 </div>
                             </div>
 
@@ -62,7 +62,7 @@ const EmployeesPage: React.FC = () => {
                                     {emp.isActive ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                                 </button>
                                 <button onClick={() => {
-                                    if (window.confirm('¿Eliminar empleado?')) removeEmployee(emp.id)
+                                    if (window.confirm('Delete employee?')) removeEmployee(emp.id)
                                 }} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full">
                                     <Trash2 className="w-5 h-5" />
                                 </button>
@@ -72,7 +72,7 @@ const EmployeesPage: React.FC = () => {
 
                     {filteredEmployees.length === 0 && (
                         <div className="text-center py-10 text-gray-400">
-                            No se encontraron empleados.
+                            No employees found.
                         </div>
                     )}
                 </div>

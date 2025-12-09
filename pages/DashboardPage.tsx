@@ -19,8 +19,9 @@ const DashboardPage: React.FC = () => {
     } = useEmployees();
 
     const [newEmpName, setNewEmpName] = useState('');
-    // Mock last saved for now, in real app could be checking context or DB status
-    const lastSaved = new Date();
+
+    // Requirement: Only show active employees in Dashboard
+    const activeEmployees = employees.filter(e => e.isActive);
 
     const handleAddEmployee = (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,7 +31,7 @@ const DashboardPage: React.FC = () => {
     };
 
     const handleReset = () => {
-        if (window.confirm('¿Quieres reiniciar todos los datos a los valores por defecto?')) {
+        if (window.confirm('Do you want to reset all data to defaults?')) {
             resetData();
         }
     };
@@ -42,9 +43,9 @@ const DashboardPage: React.FC = () => {
                 {/* Timeframe Selector */}
                 <div className="flex items-center bg-gray-100 rounded-lg p-1 overflow-x-auto max-w-full">
                     <div className="px-3 text-gray-500 font-bold flex items-center gap-2 whitespace-nowrap">
-                        <Calendar className="w-4 h-4" /> Periodo:
+                        <Calendar className="w-4 h-4" /> Period:
                     </div>
-                    {(['day', 'week', 'month', 'year'] as TimeFrame[]).map((tf) => (
+                    {(['day', 'week', 'biweekly', 'month', 'year'] as TimeFrame[]).map((tf) => (
                         <button
                             key={tf}
                             onClick={() => setTimeFrame(tf)}
@@ -53,16 +54,16 @@ const DashboardPage: React.FC = () => {
                                     : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
-                            {tf === 'day' ? 'Día' : tf === 'week' ? 'Semana' : tf === 'month' ? 'Mes' : 'Año'}
+                            {tf === 'biweekly' ? '2 Weeks' : tf}
                         </button>
                     ))}
                 </div>
 
-                {/* Quick Add Employee - Keeping it in Dashboard for convenience as per original design, could also be just link to Employees page */}
+                {/* Quick Add Employee */}
                 <form onSubmit={handleAddEmployee} className="flex w-full md:w-auto gap-2">
                     <input
                         type="text"
-                        placeholder="Añadir empleado rápido..."
+                        placeholder="Name..."
                         value={newEmpName}
                         onChange={(e) => setNewEmpName(e.target.value)}
                         className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-frida-orange focus:border-transparent outline-none flex-grow min-w-[200px]"
@@ -77,15 +78,15 @@ const DashboardPage: React.FC = () => {
                 </form>
             </div>
 
-            <SummaryCards totals={totals} activeCount={employees.filter(e => e.isActive).length} />
+            <SummaryCards totals={totals} activeCount={activeEmployees.length} />
 
             <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-2xl font-serif text-frida-teal font-bold flex items-center gap-2">
-                        Planilla: <span className="text-frida-pink capitalize">{timeFrame === 'day' ? 'Diaria' : timeFrame === 'week' ? 'Semanal' : timeFrame === 'month' ? 'Mensual' : 'Anual'}</span>
+                        Payroll: <span className="text-frida-pink capitalize">{timeFrame === 'biweekly' ? '2 Weeks' : timeFrame}</span>
                     </h2>
                     <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                        <Save className="w-3 h-3" /> Datos guardados localmente
+                        <Save className="w-3 h-3" /> Saved locally
                     </p>
                 </div>
 
@@ -93,12 +94,12 @@ const DashboardPage: React.FC = () => {
                     onClick={handleReset}
                     className="text-sm text-gray-400 hover:text-red-500 flex items-center gap-1 transition-colors self-end sm:self-auto"
                 >
-                    <RotateCcw className="w-4 h-4" /> Restaurar datos
+                    <RotateCcw className="w-4 h-4" /> Reset Data
                 </button>
             </div>
 
             <PayrollTable
-                employees={employees}
+                employees={activeEmployees}
                 totals={totals}
                 onUpdateEmployee={updateEmployee}
                 onToggleActive={toggleActive}

@@ -14,7 +14,7 @@ const LoginPage: React.FC = () => {
         if (login(password)) {
             navigate('/');
         } else {
-            setError('Contraseña incorrecta');
+            setError('Incorrect Password');
             setPassword('');
         }
     };
@@ -27,14 +27,14 @@ const LoginPage: React.FC = () => {
                         <Lock className="w-8 h-8" />
                     </div>
                     <h1 className="text-2xl font-serif font-bold text-gray-800">Frida's Payroll</h1>
-                    <p className="text-gray-500">Acceso Restringido</p>
+                    <p className="text-gray-500">Restricted Access</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                         <input
                             type="password"
-                            placeholder="Contraseña"
+                            placeholder="Password"
                             value={password}
                             onChange={(e) => {
                                 setPassword(e.target.value);
@@ -49,12 +49,12 @@ const LoginPage: React.FC = () => {
                         type="submit"
                         className="w-full bg-frida-pink hover:bg-pink-700 text-white font-bold py-3 rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-md"
                     >
-                        Entrar
+                        Enter
                     </button>
                 </form>
 
                 <p className="text-center text-xs text-gray-400 mt-8">
-                    Solo personal autorizado
+                    Authorized Personnel Only
                 </p>
             </div>
         </div>

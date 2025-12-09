@@ -22,8 +22,9 @@ export const generatePayrollInsights = async (employees: Employee[], timeFrame: 
     // Format data for the model
     const payrollData = activeEmployees.map(e => {
         const basePay = e.hourlyWage * e.hoursWorked;
-        const total = basePay + e.overtimePay + e.tips;
-        return `${e.name}: Wages $${basePay.toFixed(2)}, Tips $${e.tips.toFixed(2)}, Overtime $${e.overtimePay.toFixed(2)}, Total $${total.toFixed(2)}`;
+        const otPay = (e.overtimeHours || 0) * e.hourlyWage * 1.5;
+        const total = basePay + otPay + (e.tips || 0);
+        return `${e.name}: Wages $${basePay.toFixed(2)}, Tips $${(e.tips || 0).toFixed(2)}, Overtime $${otPay.toFixed(2)}, Total $${total.toFixed(2)}`;
     }).join('\n');
 
     const prompt = `

@@ -1,20 +1,24 @@
 export type TimeFrame = 'day' | 'week' | 'month' | 'year';
-
 export interface Employee {
-  id: string;
-  name: string;
-  hourlyWage: number;
-  hoursWorked: number;
-  overtimePay: number;
-  tips: number;
-  isActive: boolean;
+    id: string;
+    name: string;
+    hourlyWage: number;
+    hoursWorked: number;
+    overtimeHours: number;
+    tips: number;
+    isActive: boolean;
+    address?: string;
+    ssn?: string;
 }
 
+
+
 export interface PayrollTotals {
-  totalHours: number;
-  totalBasePay: number;
-  totalOvertime: number;
-  totalTips: number;
-  grandTotal: number;
-  avgWage: number;
+    totalHours: number;
+    totalBasePay: number;
+    totalOvertimePay: number; // calculated value
+    totalTips: number;
+    grandTotal: number;
+    avgWage: number;
+    hourlyWageSum: number;
 }
