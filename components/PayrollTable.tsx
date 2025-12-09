@@ -118,7 +118,7 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
                                     </td>
                                     {/* Base Earn now includes Regular + OT Pay */}
                                     <td className="p-4 text-right font-medium text-gray-600">
-                                        ${baseEarn.toFixed(2)}
+                                        ${baseEarn.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </td>
                                     <td className="p-4">
                                         <div className="flex items-center bg-gray-50 rounded-lg p-2 border border-green-100 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-500/20 transition-all w-24 ml-auto">
@@ -133,7 +133,7 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
                                     </td>
                                     <td className="p-4 text-right">
                                         <div className="font-bold text-xl text-frida-pink font-serif">
-                                            ${total.toFixed(2)}
+                                            ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </div>
                                     </td>
                                     <td className="p-4 text-center">
@@ -164,14 +164,14 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
                             <td className="p-4 text-right">-</td>
                             <td className="p-4 text-center">{totals.totalHours.toFixed(1)}</td>
                             <td className="p-4 text-center">-</td>
-                            <td className="p-4 text-right">${totals.totalBasePay.toFixed(2)}</td>
-                            <td className="p-4 text-right">${totals.totalTips.toFixed(2)}</td>
-                            <td className="p-4 text-right text-frida-pink text-xl">${totals.grandTotal.toFixed(2)}</td>
+                            <td className="p-4 text-right">${totals.totalBasePay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td className="p-4 text-right">${totals.totalTips.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td className="p-4 text-right text-frida-pink text-xl">${totals.grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             <td className="p-4"></td>
                         </tr>
                         <tr className="bg-gray-50 text-sm text-gray-600">
                             <td className="p-4 font-serif italic">Average</td>
-                            <td className="p-4 text-right">${totals.avgWage.toFixed(2)}</td>
+                            <td className="p-4 text-right">${totals.avgWage.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             <td className="p-4 text-center">
                                 {employees.filter(e => e.isActive).length > 0
                                     ? (totals.totalHours / employees.filter(e => e.isActive).length).toFixed(1)
@@ -180,17 +180,17 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
                             <td className="p-4 text-center">-</td>
                             <td className="p-4 text-right">
                                 ${employees.filter(e => e.isActive).length > 0
-                                    ? (totals.totalBasePay / employees.filter(e => e.isActive).length).toFixed(2)
+                                    ? (totals.totalBasePay / employees.filter(e => e.isActive).length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                                     : 0}
                             </td>
                             <td className="p-4 text-right">
                                 ${employees.filter(e => e.isActive).length > 0
-                                    ? (totals.totalTips / employees.filter(e => e.isActive).length).toFixed(2)
+                                    ? (totals.totalTips / employees.filter(e => e.isActive).length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                                     : 0}
                             </td>
                             <td className="p-4 text-right">
                                 ${employees.filter(e => e.isActive).length > 0
-                                    ? (totals.grandTotal / employees.filter(e => e.isActive).length).toFixed(2)
+                                    ? (totals.grandTotal / employees.filter(e => e.isActive).length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                                     : 0}
                             </td>
                             <td className="p-4"></td>

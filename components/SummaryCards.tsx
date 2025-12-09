@@ -13,7 +13,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ totals, activeCount }) => {
             <div className="bg-white border-l-4 border-frida-pink shadow-lg rounded-r-lg p-4 flex items-center justify-between">
                 <div>
                     <p className="text-gray-500 font-sans text-sm font-bold uppercase">Total Paid</p>
-                    <p className="text-2xl font-serif text-frida-pink font-bold">${totals.grandTotal.toFixed(2)}</p>
+                    <p className="text-2xl font-serif text-frida-pink font-bold">${totals.grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
                 <div className="bg-pink-100 p-3 rounded-full">
                     <DollarSign className="text-frida-pink w-6 h-6" />
@@ -33,7 +33,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ totals, activeCount }) => {
             <div className="bg-white border-l-4 border-frida-orange shadow-lg rounded-r-lg p-4 flex items-center justify-between">
                 <div>
                     <p className="text-gray-500 font-sans text-sm font-bold uppercase">Tips</p>
-                    <p className="text-2xl font-serif text-frida-orange font-bold">${totals.totalTips.toFixed(2)}</p>
+                    <p className="text-2xl font-serif text-frida-orange font-bold">${totals.totalTips.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
                 <div className="bg-orange-100 p-3 rounded-full">
                     <TrendingUp className="text-frida-orange w-6 h-6" />

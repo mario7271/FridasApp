@@ -148,12 +148,12 @@ const ReportsPage: React.FC = () => {
                                         <td className="border border-black p-2 font-medium">
                                             {emp.name}
                                         </td>
-                                        <td className="border border-black p-2 text-right">${emp.hourlyWage.toFixed(2)}</td>
+                                        <td className="border border-black p-2 text-right">${emp.hourlyWage.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                         <td className="border border-black p-2 text-center">{emp.hoursWorked}</td>
                                         <td className="border border-black p-2 text-center">{emp.overtimeHours || 0}</td>
-                                        <td className="border border-black p-2 text-right">${baseEarn.toFixed(2)}</td>
-                                        <td className="border border-black p-2 text-right">${(emp.tips || 0).toFixed(2)}</td>
-                                        <td className="border border-black p-2 text-right font-bold">${total.toFixed(2)}</td>
+                                        <td className="border border-black p-2 text-right">${baseEarn.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                        <td className="border border-black p-2 text-right">${(emp.tips || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                        <td className="border border-black p-2 text-right font-bold">${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                     </tr>
                                 );
                             })}
@@ -164,9 +164,9 @@ const ReportsPage: React.FC = () => {
                                 <td className="border border-black p-2 text-right">-</td>
                                 <td className="border border-black p-2 text-center">{totals.totalHours.toFixed(1)}</td>
                                 <td className="border border-black p-2 text-center">-</td>
-                                <td className="border border-black p-2 text-right">${totals.totalBasePay.toFixed(2)}</td>
-                                <td className="border border-black p-2 text-right">${totals.totalTips.toFixed(2)}</td>
-                                <td className="border border-black p-2 text-right text-lg">${totals.grandTotal.toFixed(2)}</td>
+                                <td className="border border-black p-2 text-right">${totals.totalBasePay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="border border-black p-2 text-right">${totals.totalTips.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="border border-black p-2 text-right text-lg">${totals.grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             </tr>
                         </tfoot>
                     </table>
