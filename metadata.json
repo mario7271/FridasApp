@@ -1,0 +1,5 @@
+{
+  "name": "Frida's Payroll",
+  "description": "A vibrant, Mexican-themed payroll management application for restaurants. Track wages, tips, and overtime with automated calculations and AI-powered insights.",
+  "requestFramePermissions": []
+}
