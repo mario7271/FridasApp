@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { Employee, TimeFrame, PayrollTotals } from '../types';
+import { supabase } from '../lib/supabase';
 
 interface EmployeeContextType {
     employees: Employee[];
@@ -15,41 +16,67 @@ interface EmployeeContextType {
 
 const EmployeeContext = createContext<EmployeeContextType | undefined>(undefined);
 
-// Updated initial data with new schema
-const INITIAL_EMPLOYEES: Employee[] = [
-    { id: '1', name: 'Diego Rivera', hourlyWage: 25.50, hoursWorked: 40, overtimeHours: 5, tips: 200.00, isActive: true, address: '123 Mural St', cityStateZip: 'Mexico City, CDMX 12345', ssn: '***-**-1111', dependents: 2 },
-    { id: '2', name: 'Cristina Kahlo', hourlyWage: 18.00, hoursWorked: 35, overtimeHours: 0, tips: 180.50, isActive: true, dependents: 0 },
-    { id: '3', name: 'Maria Izquierdo', hourlyWage: 20.00, hoursWorked: 42, overtimeHours: 2, tips: 250.00, isActive: true, dependents: 1 },
-    { id: '4', name: 'Chavela Vargas', hourlyWage: 22.00, hoursWorked: 20, overtimeHours: 0, tips: 300.00, isActive: true, dependents: 0 },
-    { id: '5', name: 'Juan O Gorman', hourlyWage: 16.50, hoursWorked: 45, overtimeHours: 3, tips: 100.00, isActive: false, dependents: 3 },
-];
+// Helper to map DB snake_case to App camelCase
+const mapFromDB = (data: any[]): Employee[] => {
+    return data.map(d => ({
+        id: d.id,
+        name: d.name,
+        hourlyWage: Number(d.hourly_wage), // Ensure numbers
+        hoursWorked: Number(d.hours_worked),
+        overtimeHours: Number(d.overtime_hours),
+        tips: Number(d.tips),
+        isActive: d.is_active,
+        address: d.address || '',
+        cityStateZip: d.city_state_zip || '',
+        ssn: d.ssn || '',
+        dependents: Number(d.dependents || 0),
+        signature: d.signature || ''
+    }));
+};
+
+// Helper to map App camelCase to DB snake_case for single field updates
+const mapFieldToDB = (field: keyof Employee): string => {
+    switch (field) {
+        case 'hourlyWage': return 'hourly_wage';
+        case 'hoursWorked': return 'hours_worked';
+        case 'overtimeHours': return 'overtime_hours';
+        case 'isActive': return 'is_active';
+        case 'cityStateZip': return 'city_state_zip';
+        default: return field;
+    }
+};
 
 export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [employees, setEmployees] = useState<Employee[]>(() => {
-        try {
-            const saved = localStorage.getItem('fridas_payroll_data');
-            if (saved) {
-                // Migration helper: checked if saved data has old format (overtimePay) and convert if needed?
-                // For simplicity, we might just confuse logic if we don't migrate. 
-                // Let's assume for this user "reset" is okay or we check logic.
-                // Actually, let's just use it and rely on users fixing data or 'undefined' being 0
-                return JSON.parse(saved);
-            }
-        } catch (e) {
-            console.error("Failed to load persistence", e);
-        }
-        return INITIAL_EMPLOYEES;
-    });
-
+    const [employees, setEmployees] = useState<Employee[]>([]);
     const [timeFrame, setTimeFrame] = useState<TimeFrame>('biweekly');
+    const [isLoading, setIsLoading] = useState(true);
 
+    // Initial Fetch
     useEffect(() => {
-        localStorage.setItem('fridas_payroll_data', JSON.stringify(employees));
-    }, [employees]);
+        fetchEmployees();
+    }, []);
+
+    const fetchEmployees = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('employees')
+                .select('*')
+                .order('name');
+
+            if (error) throw error;
+
+            if (data) {
+                setEmployees(mapFromDB(data));
+            }
+        } catch (error) {
+            console.error('Error fetching employees:', error);
+            // Optional: Fallback to empty or show error
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const totals: PayrollTotals = useMemo(() => {
-        // Totals only include ACTIVE employees now? 
-        // Requirement 3: "no se van a ver en la planilla general ni en el reporte." -> Implies totals should also reflect only active.
         const active = employees.filter(e => e.isActive);
         const count = active.length;
 
@@ -58,18 +85,15 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
 
         const res = active.reduce((acc, emp) => {
-            // New Logic: Base Earn includes Regular hours + Overtime Pay
             const regularPay = emp.hourlyWage * (emp.hoursWorked || 0);
             const otHours = emp.overtimeHours || 0;
             const otPay = otHours * emp.hourlyWage * 1.5;
-
-            const baseEarn = regularPay + otPay; // Now Base Earn includes both
+            const baseEarn = regularPay + otPay;
 
             return {
                 totalHours: acc.totalHours + (emp.hoursWorked || 0),
-                totalBasePay: acc.totalBasePay + baseEarn, // Updated semantic: totalBasePay = sum of Base Earns
-                totalOvertimePay: acc.totalOvertimePay + otPay, // Still tracking distinct OT pay technically but base includes it? 
-                // Wait, if totalBasePay includes OT, then grandTotal should be totalBasePay + Tips
+                totalBasePay: acc.totalBasePay + baseEarn,
+                totalOvertimePay: acc.totalOvertimePay + otPay,
                 totalTips: acc.totalTips + (emp.tips || 0),
                 grandTotal: acc.grandTotal + baseEarn + (emp.tips || 0),
                 hourlyWageSum: acc.hourlyWageSum + emp.hourlyWage
@@ -82,9 +106,10 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
         };
     }, [employees]);
 
-    const addEmployee = (name: string, hourlyWage: number = 15.00) => {
+    const addEmployee = async (name: string, hourlyWage: number = 15.00) => {
+        const id = crypto.randomUUID(); // Use standard UUID
         const newEmp: Employee = {
-            id: Date.now().toString(),
+            id,
             name,
             hourlyWage,
             hoursWorked: 0,
@@ -92,28 +117,109 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
             tips: 0,
             isActive: true,
             address: '',
-            ssn: ''
+            cityStateZip: '',
+            ssn: '',
+            dependents: 0,
+            signature: ''
         };
-        setEmployees([...employees, newEmp]);
+
+        // Optimistic Update
+        setEmployees(prev => [...prev, newEmp]);
+
+        // DB Update
+        const { error } = await supabase.from('employees').insert({
+            id,
+            name,
+            hourly_wage: hourlyWage,
+            hours_worked: 0,
+            overtime_hours: 0,
+            tips: 0,
+            is_active: true
+        });
+
+        if (error) {
+            console.error('Error adding employee:', error);
+            // Revert on error could be implemented here
+        }
     };
 
-    const updateEmployee = (id: string, field: keyof Employee, value: number | string) => {
+    const updateEmployee = async (id: string, field: keyof Employee, value: number | string) => {
+        // Optimistic Update
         setEmployees(prev => prev.map(emp => emp.id === id ? { ...emp, [field]: value } : emp));
+
+        // DB Update
+        const dbField = mapFieldToDB(field);
+        const { error } = await supabase
+            .from('employees')
+            .update({ [dbField]: value })
+            .eq('id', id);
+
+        if (error) {
+            console.error(`Error updating employee ${field}:`, error);
+        }
     };
 
-    const toggleActive = (id: string) => {
-        setEmployees(prev => prev.map(emp => emp.id === id ? { ...emp, isActive: !emp.isActive } : emp));
+    const toggleActive = async (id: string) => {
+        const emp = employees.find(e => e.id === id);
+        if (!emp) return;
+
+        const newValue = !emp.isActive;
+
+        // Optimistic Update
+        setEmployees(prev => prev.map(e => e.id === id ? { ...e, isActive: newValue } : e));
+
+        // DB Update
+        const { error } = await supabase
+            .from('employees')
+            .update({ is_active: newValue })
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error toggling active:', error);
+        }
     };
 
-    const removeEmployee = (id: string) => {
+    const removeEmployee = async (id: string) => {
+        // Optimistic Update
         setEmployees(prev => prev.filter(emp => emp.id !== id));
+
+        // DB Update
+        const { error } = await supabase
+            .from('employees')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error removing employee:', error);
+        }
     };
 
-    const resetData = () => {
-        setEmployees(INITIAL_EMPLOYEES);
+    const resetData = async () => {
+        // Caution: Resetting in DB means deleting all and re-seeding!
+        // For safety, let's just clear values to 0 instead of deleting everyone.
+        // Or re-implement "Seed" functionality?
+        // Let's make "Reset" just zero out hours/tips for a new period.
+
+        const updates = employees.map(e => ({
+            ...e,
+            hoursWorked: 0,
+            overtimeHours: 0,
+            tips: 0
+        }));
+
+        setEmployees(updates);
+
+        // Batch update is tricky in Supabase without RPC, loop for now (not efficient but safe for small teams)
+        for (const emp of updates) {
+            await supabase.from('employees').update({
+                hours_worked: 0,
+                overtime_hours: 0,
+                tips: 0
+            }).eq('id', emp.id);
+        }
     };
 
-    const handleTimeFrameChange = (newFrame: TimeFrame) => {
+    const handleTimeFrameChange = async (newFrame: TimeFrame) => {
         if (newFrame === timeFrame) return;
 
         const multipliers: Record<string, number> = {
@@ -126,6 +232,7 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
 
         const factor = multipliers[newFrame] / multipliers[timeFrame];
 
+        // Optimistically scale
         const scaledEmployees = employees.map(emp => ({
             ...emp,
             hoursWorked: parseFloat((emp.hoursWorked * factor).toFixed(1)),
@@ -135,6 +242,15 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
 
         setEmployees(scaledEmployees);
         setTimeFrame(newFrame);
+
+        // Update DB with scaled values
+        for (const emp of scaledEmployees) {
+            await supabase.from('employees').update({
+                hours_worked: emp.hoursWorked,
+                overtime_hours: emp.overtimeHours,
+                tips: emp.tips
+            }).eq('id', emp.id);
+        }
     };
 
     return (
