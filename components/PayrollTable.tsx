@@ -206,47 +206,65 @@ const PayrollTable: React.FC<PayrollTableProps> = ({
                     </div>
                 </div>
             )}
-            <tfoot className="bg-gray-100 font-bold text-gray-800">
-                <tr className="border-t-2 border-frida-teal">
-                    <td className="p-4 text-frida-teal font-serif text-lg">TOTALS</td>
-                    <td className="p-4 text-right">-</td>
-                    <td className="p-4 text-center">{totals.totalHours.toFixed(1)}</td>
-                    <td className="p-4 text-center">-</td>
-                    <td className="p-4 text-right">${totals.totalBasePay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                    <td className="p-4 text-right">${totals.totalTips.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                    <td className="p-4 text-right text-frida-pink text-xl">${totals.grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                    <td className="p-4"></td>
-                </tr>
-                <tr className="bg-gray-50 text-sm text-gray-600">
-                    <td className="p-4 font-serif italic">Average</td>
-                    <td className="p-4 text-right">${totals.avgWage.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                    <td className="p-4 text-center">
-                        {employees.filter(e => e.isActive).length > 0
-                            ? (totals.totalHours / employees.filter(e => e.isActive).length).toFixed(1)
-                            : 0}
-                    </td>
-                    <td className="p-4 text-center">-</td>
-                    <td className="p-4 text-right">
-                        ${employees.filter(e => e.isActive).length > 0
-                            ? (totals.totalBasePay / employees.filter(e => e.isActive).length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                            : 0}
-                    </td>
-                    <td className="p-4 text-right">
-                        ${employees.filter(e => e.isActive).length > 0
-                            ? (totals.totalTips / employees.filter(e => e.isActive).length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                            : 0}
-                    </td>
-                    <td className="p-4 text-right">
-                        ${employees.filter(e => e.isActive).length > 0
-                            ? (totals.grandTotal / employees.filter(e => e.isActive).length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                            : 0}
-                    </td>
-                    <td className="p-4"></td>
-                </tr>
-            </tfoot>
-        </table>
-            </div >
-        </div >
+            {/* --- GRAND TOTALS SECTION --- */}
+            <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100 mt-8">
+                <div className="bg-gray-800 p-2 border-b border-gray-700">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-widest pl-4">Period Grand Totals</h3>
+                </div>
+                <table className="w-full text-left border-collapse">
+                    <thead className="bg-gray-100 text-gray-500 uppercase text-xs">
+                        <tr>
+                            <th className="p-4">Metric</th>
+                            <th className="p-4 text-right">Label</th>
+                            <th className="p-4 text-center">Hours</th>
+                            <th className="p-4 text-center">OT</th>
+                            <th className="p-4 text-right">Base Pay</th>
+                            <th className="p-4 text-right">Tips</th>
+                            <th className="p-4 text-right">Total</th>
+                            <th className="p-4"></th>
+                        </tr>
+                    </thead>
+                    <tfoot className="bg-white font-bold text-gray-800">
+                        <tr className="border-t-2 border-frida-teal">
+                            <td className="p-4 text-frida-teal font-serif text-lg">TOTALS</td>
+                            <td className="p-4 text-right">-</td>
+                            <td className="p-4 text-center">{totals.totalHours.toFixed(1)}</td>
+                            <td className="p-4 text-center">-</td>
+                            <td className="p-4 text-right">${totals.totalBasePay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td className="p-4 text-right">${totals.totalTips.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td className="p-4 text-right text-frida-pink text-xl">${totals.grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td className="p-4"></td>
+                        </tr>
+                        <tr className="bg-gray-50 text-sm text-gray-600">
+                            <td className="p-4 font-serif italic">Averages</td>
+                            <td className="p-4 text-right"></td>
+                            <td className="p-4 text-center">
+                                {employees.filter(e => e.isActive).length > 0
+                                    ? (totals.totalHours / employees.filter(e => e.isActive).length).toFixed(1)
+                                    : 0}
+                            </td>
+                            <td className="p-4 text-center">-</td>
+                            <td className="p-4 text-right">
+                                ${employees.filter(e => e.isActive).length > 0
+                                    ? (totals.totalBasePay / employees.filter(e => e.isActive).length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                    : 0}
+                            </td>
+                            <td className="p-4 text-right">
+                                ${employees.filter(e => e.isActive).length > 0
+                                    ? (totals.totalTips / employees.filter(e => e.isActive).length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                    : 0}
+                            </td>
+                            <td className="p-4 text-right">
+                                ${employees.filter(e => e.isActive).length > 0
+                                    ? (totals.grandTotal / employees.filter(e => e.isActive).length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                    : 0}
+                            </td>
+                            <td className="p-4"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
     );
 };
 
