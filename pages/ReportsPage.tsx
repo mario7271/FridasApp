@@ -24,7 +24,7 @@ const ReportsPage: React.FC = () => {
                 useCORS: true,
                 logging: false,
                 backgroundColor: '#ffffff'
-            });
+            } as any);
 
             // 2. Convert to PDF
             const imgData = canvas.toDataURL('image/png');
