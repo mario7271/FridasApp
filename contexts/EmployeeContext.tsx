@@ -13,6 +13,7 @@ interface EmployeeContextType {
     removeEmployee: (id: string) => void;
     setTimeFrame: (timeFrame: TimeFrame) => void;
     resetData: () => void;
+    calculateGrossWages: (emp: Employee) => number;
 }
 
 const EmployeeContext = createContext<EmployeeContextType | undefined>(undefined);
@@ -34,7 +35,12 @@ const mapFromDB = (data: any[]): Employee[] => {
         signature: d.signature || '',
         role: d.role || 'FOH',
         salary: Number(d.salary || 0),
-        restaurantId: d.restaurant_id
+        restaurantId: d.restaurant_id,
+        filingStatus: d.filing_status || 'single',
+        multipleJobs: d.multiple_jobs || false,
+        dependentAmountUSD: Number(d.dependent_amount_usd || 0),
+        otherIncome: Number(d.other_income || 0),
+        deductions: Number(d.deductions || 0)
     }));
 };
 
@@ -46,6 +52,10 @@ const mapFieldToDB = (field: keyof Employee): string => {
         case 'overtimeHours': return 'overtime_hours';
         case 'isActive': return 'is_active';
         case 'cityStateZip': return 'city_state_zip';
+        case 'filingStatus': return 'filing_status';
+        case 'multipleJobs': return 'multiple_jobs';
+        case 'dependentAmountUSD': return 'dependent_amount_usd';
+        case 'otherIncome': return 'other_income';
         // role and salary map directly if columns match name, but let's be explicit if needed or default
         default: return field;
     }
@@ -102,12 +112,30 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
             let otPay = 0;
 
             if (emp.role === 'BOH') {
-                // BOH Logic: Base Earn is their Salary. No Overtime. No Hours multiplier.
-                // Assuming 'salary' field holds the value for the period (or we assume it's weekly/biweekly per period?)
-                // The task implies "Base Earn" is the input. So we use emp.salary as the base earn.
-                baseEarn = emp.salary || 0;
+                // BOH Logic: 
+                // Scenario A: Salaried. Gross = Base Salary.
+                // Scenario B: Hourly. Gross = (Hours * Rate) + (OT * Rate * 1.5)
+                // We determine if salaried by checking if hourlyWage is 0 or low? Or imply structure?
+                // The prompt says "Salaried (Usually BOH)" but also "Hourly (BOH)".
+                // We'll use: if salary > 0, treat as salaried. Else hourly.
+
+                if (emp.salary && emp.salary > 0) {
+                    baseEarn = emp.salary;
+                    // Salaried usually doesn't get OT in this context unless specified, assuming exempt.
+                } else {
+                    const regularPay = emp.hourlyWage * (emp.hoursWorked || 0);
+                    const otPayCalc = (emp.overtimeHours || 0) * emp.hourlyWage * 1.5;
+                    baseEarn = regularPay; // Base logic for totals
+                    otPay = otPayCalc;
+                }
             } else {
-                // FOH Logic
+                // FOH Logic (Tipped)
+                // Gross Wages = (Hours * Rate) + (OT * Rate * 1.5) + Tips Amount.
+                // Note: 'baseEarn' in this reduce is usually just wage earnings. 
+                // But for tax purposed strictly, tips are wages.
+                // For the 'Totals' display object, 'totalBasePay' typically means Employer paid wages.
+                // 'Grand Total' is what shows up as total earnings.
+
                 const regularPay = emp.hourlyWage * (emp.hoursWorked || 0);
                 const otHours = emp.overtimeHours || 0;
                 otPay = otHours * emp.hourlyWage * 1.5;
@@ -283,6 +311,28 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
     };
 
+    const calculateGrossWages = (emp: Employee): number => {
+        let gross = 0;
+        if (emp.role === 'BOH') {
+            // Scenario A: Salaried
+            if (emp.salary && emp.salary > 0) {
+                gross = emp.salary;
+            } else {
+                // Scenario B: Hourly (BOH)
+                const regular = emp.hourlyWage * (emp.hoursWorked || 0);
+                const ot = (emp.overtimeHours || 0) * emp.hourlyWage * 1.5;
+                gross = regular + ot;
+            }
+        } else {
+            // Scenario C: Tipped Hourly (FOH)
+            const regular = emp.hourlyWage * (emp.hoursWorked || 0);
+            const ot = (emp.overtimeHours || 0) * emp.hourlyWage * 1.5;
+            const tips = emp.tips || 0;
+            gross = regular + ot + tips;
+        }
+        return gross;
+    };
+
     return (
         <EmployeeContext.Provider value={{
             employees,
@@ -293,7 +343,8 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
             toggleActive,
             removeEmployee,
             setTimeFrame: handleTimeFrameChange,
-            resetData
+            resetData,
+            calculateGrossWages
         }}>
             {children}
         </EmployeeContext.Provider>

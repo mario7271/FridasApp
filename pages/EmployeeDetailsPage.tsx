@@ -25,7 +25,12 @@ const EmployeeDetailsPage: React.FC = () => {
         cityStateZip: '',
         ssn: '',
         dependents: 0,
-        signature: ''
+        signature: '',
+        filingStatus: 'single',
+        multipleJobs: false,
+        dependentAmountUSD: 0,
+        otherIncome: 0,
+        deductions: 0
     });
 
     useEffect(() => {
@@ -37,7 +42,7 @@ const EmployeeDetailsPage: React.FC = () => {
         }
     }, [existingEmployee]);
 
-    const handleChange = (field: keyof Employee, value: string | number) => {
+    const handleChange = (field: keyof Employee, value: string | number | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
@@ -82,6 +87,11 @@ const EmployeeDetailsPage: React.FC = () => {
             cityStateZip: formData.cityStateZip || '',
             ssn: formData.ssn || '',
             dependents: Number(formData.dependents),
+            dependentAmountUSD: Number(formData.dependentAmountUSD || 0),
+            otherIncome: Number(formData.otherIncome || 0),
+            deductions: Number(formData.deductions || 0),
+            filingStatus: formData.filingStatus || 'single',
+            multipleJobs: formData.multipleJobs || false,
             signature: signatureData || '',
             role: (formData.role || 'FOH'),
             salary: Number(formData.salary || 0),
@@ -264,7 +274,94 @@ const EmployeeDetailsPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 3. Payroll Info */}
+                {/* 2.5 Tax / W-4 Information - REQUIRED UPDATE */}
+                <div className="bg-white p-6 rounded-xl border-2 border-indigo-100 space-y-4">
+                    <h3 className="font-bold text-indigo-900 flex items-center gap-2">
+                        Federal Tax Withholding (W-4 Info)
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Step 1(c): Filing Status */}
+                        <div>
+                            <label className="text-xs font-bold text-indigo-900 uppercase block mb-1">Filing Status</label>
+                            <select
+                                value={formData.filingStatus || 'single'}
+                                onChange={e => handleChange('filingStatus', e.target.value)}
+                                className="w-full p-3 bg-indigo-50 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-medium"
+                            >
+                                <option value="single">Single or Married Filing Separately</option>
+                                <option value="married_joint">Married Filing Jointly / Qualifying Widow(er)</option>
+                                <option value="head_household">Head of Household</option>
+                            </select>
+                        </div>
+
+                        {/* Step 2(c): Multiple Jobs */}
+                        <div className="flex items-center">
+                            <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-indigo-50 w-full border border-transparent hover:border-indigo-200 transition">
+                                <input
+                                    type="checkbox"
+                                    className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                                    checked={formData.multipleJobs || false}
+                                    onChange={e => handleChange('multipleJobs', e.target.checked)}
+                                />
+                                <div>
+                                    <span className="font-bold text-indigo-900 block">Multiple Jobs or Spouse Works</span>
+                                    <span className="text-xs text-indigo-500">Check if step 2(c) applies</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        {/* Step 3: Dependents (Currency) */}
+                        <div>
+                            <label className="text-xs font-bold text-indigo-900 uppercase block mb-1">Dependents Amount ($)</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-3 text-indigo-400 font-bold">$</span>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="500"
+                                    value={formData.dependentAmountUSD ?? ''}
+                                    onChange={e => handleChange('dependentAmountUSD', e.target.value)}
+                                    className="w-full pl-6 p-3 bg-white border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold"
+                                    placeholder="2000"
+                                />
+                            </div>
+                            <p className="text-[10px] text-gray-400 mt-1">Total credit for dependents (step 3)</p>
+                        </div>
+
+                        {/* Step 4: Other Adjustments */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-xs font-bold text-indigo-900 uppercase block mb-1">Other Income</label>
+                                <div className="relative">
+                                    <span className="absolute left-2 top-3 text-indigo-400 font-bold">$</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={formData.otherIncome ?? ''}
+                                        onChange={e => handleChange('otherIncome', e.target.value)}
+                                        className="w-full pl-5 p-3 bg-white border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    />
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-1">Step 4(a)</p>
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-indigo-900 uppercase block mb-1">Deductions</label>
+                                <div className="relative">
+                                    <span className="absolute left-2 top-3 text-indigo-400 font-bold">$</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={formData.deductions ?? ''}
+                                        onChange={e => handleChange('deductions', e.target.value)}
+                                        className="w-full pl-5 p-3 bg-white border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    />
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-1">Step 4(b)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div className="border-t border-gray-100 pt-6">
                     <h3 className="font-bold text-lg mb-4">Payroll Calculation</h3>
 
@@ -277,7 +374,7 @@ const EmployeeDetailsPage: React.FC = () => {
                                     <span className="absolute left-3 top-2.5 text-gray-400 font-bold">$</span>
                                     <input
                                         type="number"
-                                        value={formData.salary || 0}
+                                        value={formData.salary ?? ''}
                                         onChange={e => handleChange('salary', e.target.value)}
                                         className="w-full pl-6 p-2 bg-white border border-gray-200 rounded-lg font-bold text-lg text-gray-800"
                                     />
@@ -290,7 +387,7 @@ const EmployeeDetailsPage: React.FC = () => {
                                     <label className="text-xs font-bold text-gray-500">Wage/Hr</label>
                                     <input
                                         type="number"
-                                        value={formData.hourlyWage}
+                                        value={formData.hourlyWage ?? ''}
                                         onChange={e => handleChange('hourlyWage', e.target.value)}
                                         className="w-full p-2 bg-white border border-gray-200 rounded-lg"
                                     />
@@ -300,7 +397,7 @@ const EmployeeDetailsPage: React.FC = () => {
                                     <label className="text-xs font-bold text-gray-500">Hours</label>
                                     <input
                                         type="number"
-                                        value={formData.hoursWorked}
+                                        value={formData.hoursWorked ?? ''}
                                         onChange={e => handleChange('hoursWorked', e.target.value)}
                                         className="w-full p-2 bg-white border border-gray-200 rounded-lg"
                                     />
@@ -310,7 +407,7 @@ const EmployeeDetailsPage: React.FC = () => {
                                     <label className="text-xs font-bold text-gray-500">OT Hours</label>
                                     <input
                                         type="number"
-                                        value={formData.overtimeHours}
+                                        value={formData.overtimeHours ?? ''}
                                         onChange={e => handleChange('overtimeHours', e.target.value)}
                                         className="w-full p-2 bg-white border border-gray-200 rounded-lg text-frida-orange font-bold"
                                     />
@@ -320,7 +417,7 @@ const EmployeeDetailsPage: React.FC = () => {
                                     <label className="text-xs font-bold text-gray-500">Tips</label>
                                     <input
                                         type="number"
-                                        value={formData.tips}
+                                        value={formData.tips ?? ''}
                                         onChange={e => handleChange('tips', e.target.value)}
                                         className="w-full p-2 bg-white border border-gray-200 rounded-lg text-green-600 font-bold"
                                     />

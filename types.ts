@@ -15,6 +15,13 @@ export interface Employee {
     role: 'FOH' | 'BOH';
     salary?: number; // Fixed salary for BOH
     restaurantId?: string;
+
+    // Tax / W-4 Info
+    filingStatus?: 'single' | 'married_joint' | 'head_household';
+    multipleJobs?: boolean;
+    dependentAmountUSD?: number;
+    otherIncome?: number;
+    deductions?: number;
 }
 
 export interface Restaurant {
