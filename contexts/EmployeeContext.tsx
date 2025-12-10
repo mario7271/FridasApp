@@ -295,7 +295,8 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
             ...emp,
             hoursWorked: parseFloat((emp.hoursWorked * factor).toFixed(1)),
             overtimeHours: parseFloat(((emp.overtimeHours || 0) * factor).toFixed(1)),
-            tips: parseFloat((emp.tips * factor).toFixed(2))
+            tips: parseFloat((emp.tips * factor).toFixed(2)),
+            salary: emp.salary ? parseFloat((emp.salary * factor).toFixed(2)) : 0
         }));
 
         setEmployees(scaledEmployees);
@@ -306,7 +307,8 @@ export const EmployeeProvider: React.FC<{ children: ReactNode }> = ({ children }
             await supabase.from('employees').update({
                 hours_worked: emp.hoursWorked,
                 overtime_hours: emp.overtimeHours,
-                tips: emp.tips
+                tips: emp.tips,
+                salary: emp.salary
             }).eq('id', emp.id);
         }
     };
