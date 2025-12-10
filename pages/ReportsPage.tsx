@@ -250,13 +250,15 @@ const ReportsPage: React.FC = () => {
                                                 <td colSpan={7} className="p-2 font-bold uppercase tracking-widest text-center text-xs text-gray-600">Back of House (BOH)</td>
                                             </tr>
                                             {activeEmployees.filter(e => e.role === 'BOH').map((emp, index) => {
-                                                const total = emp.salary || 0;
+                                                const salary = emp.salary || 0;
+                                                const tips = emp.tips || 0;
+                                                const total = salary + tips;
                                                 return (
                                                     <tr key={emp.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                                                         <td className="border border-black p-2 font-medium">{emp.name}</td>
                                                         <td className="border border-black p-2 text-center text-gray-400" colSpan={3}>-</td>
-                                                        <td className="border border-black p-2 text-right">${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                                        <td className="border border-black p-2 text-center">-</td>
+                                                        <td className="border border-black p-2 text-right">${salary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                        <td className="border border-black p-2 text-right">${tips.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                                         <td className="border border-black p-2 text-right font-bold">${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                                     </tr>
                                                 );
@@ -361,7 +363,9 @@ const ReportsPage: React.FC = () => {
                                 <tfoot>
                                     <tr className="bg-indigo-900 text-white print:bg-black print:text-white font-bold">
                                         <td className="border border-indigo-900 p-2">TOTALS</td>
-                                        <td className="border border-indigo-900 p-2 text-right">-</td>
+                                        <td className="border border-indigo-900 p-2 text-right">
+                                            ${taxData.reduce((acc, curr) => acc + curr.taxResult.grossTaxablePay, 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </td>
                                         <td className="border border-indigo-900 p-2 text-right">
                                             ${taxData.reduce((acc, curr) => acc + curr.taxResult.fedIncomeTax, 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </td>

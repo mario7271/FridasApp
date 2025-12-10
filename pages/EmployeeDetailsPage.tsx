@@ -43,7 +43,16 @@ const EmployeeDetailsPage: React.FC = () => {
     }, [existingEmployee]);
 
     const handleChange = (field: keyof Employee, value: string | number | boolean) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        setFormData(prev => {
+            const next = { ...prev, [field]: value };
+
+            // Safe Guard: If changing role to BOH, clear tips automatically to prevent "hidden" totals
+            if (field === 'role' && value === 'BOH') {
+                next.tips = 0;
+            }
+
+            return next;
+        });
     };
 
     const calculateTotal = () => {
