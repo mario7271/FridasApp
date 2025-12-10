@@ -69,10 +69,10 @@ export const calculateTaxes = (
     let annualizedWages = grossPay * payPeriods;
 
     // 1b. Add Annualized Other Income (Step 4a)
-    annualizedWages += (employee.otherIncome || 0);
+    annualizedWages += Number(employee.otherIncome || 0);
 
     // 1c. Subtract Annualized Deductions (Step 4b)
-    annualizedWages -= (employee.deductions || 0);
+    annualizedWages -= Number(employee.deductions || 0);
 
     // 1d - 1k (Adjusted Annual Wage Amount)
     // Simplified: No pre-2020 form handling. Assuming 2020+ W-4.
@@ -89,7 +89,7 @@ export const calculateTaxes = (
 
     // Step 3: Account for Tax Credits (Dependents)
     // Subtract Step 3 Amount (Annual)
-    tentativeAnnualWithholding -= (employee.dependentAmountUSD || 0);
+    tentativeAnnualWithholding -= Number(employee.dependentAmountUSD || 0);
 
     // Ensure not negative
     if (tentativeAnnualWithholding < 0) tentativeAnnualWithholding = 0;

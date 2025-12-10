@@ -4,11 +4,12 @@ import { useEmployees } from '../contexts/EmployeeContext';
 import { Trash2, ArrowLeft, Briefcase, Eraser } from 'lucide-react';
 import { Employee } from '../types';
 import SignatureCanvas from 'react-signature-canvas';
+import { calculateTaxes } from '../services/TaxCalculator';
 
 const EmployeeDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { employees, updateEmployee, toggleActive, removeEmployee, addEmployee } = useEmployees();
+    const { employees, updateEmployee, toggleActive, removeEmployee, addEmployee, timeFrame } = useEmployees();
     const sigCanvas = useRef<SignatureCanvas>(null);
 
     const isNew = id === 'new';
@@ -46,6 +47,11 @@ const EmployeeDetailsPage: React.FC = () => {
         setFormData(prev => {
             const next = { ...prev, [field]: value };
 
+            // Auto-calculate Dependents Amount ($2000 per dependent)
+            if (field === 'dependents') {
+                next.dependentAmountUSD = Number(value) * 2000;
+            }
+
             // Safe Guard: If changing role to BOH, clear tips automatically to prevent "hidden" totals
             if (field === 'role' && value === 'BOH') {
                 next.tips = 0;
@@ -75,6 +81,15 @@ const EmployeeDetailsPage: React.FC = () => {
     };
 
     const { total } = calculateTotal();
+
+    // Calculate Taxes Estimate for Preview
+    let calcFreq: any = 'biweekly';
+    if (timeFrame === 'week') calcFreq = 'weekly';
+    if (timeFrame === 'biweekly') calcFreq = 'biweekly';
+    if (timeFrame === 'month') calcFreq = 'monthly';
+    if (timeFrame === 'year') calcFreq = 'annual';
+
+    const taxResult = calculateTaxes(formData as Employee, calcFreq, total, false);
 
     const clearSignature = () => {
         sigCanvas.current?.clear();
@@ -438,6 +453,21 @@ const EmployeeDetailsPage: React.FC = () => {
                     <div className="mt-4 bg-frida-cream/30 p-4 rounded-xl flex justify-between items-center border border-orange-100">
                         <span className="font-bold text-gray-600">Total Pay Period</span>
                         <span className="text-2xl font-bold text-frida-teal">${total.toFixed(2)}</span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 mt-2">
+                        <div className="bg-gray-50 p-2 rounded-lg border border-gray-100 flex flex-col items-center">
+                            <span className="text-[10px] uppercase font-bold text-gray-400">Fica W/H</span>
+                            <span className="font-bold text-gray-700">${taxResult.ssEmployee.toFixed(2)}</span>
+                        </div>
+                        <div className="bg-gray-50 p-2 rounded-lg border border-gray-100 flex flex-col items-center">
+                            <span className="text-[10px] uppercase font-bold text-gray-400">Medi W/H</span>
+                            <span className="font-bold text-gray-700">${taxResult.medEmployee.toFixed(2)}</span>
+                        </div>
+                        <div className="bg-gray-50 p-2 rounded-lg border border-gray-100 flex flex-col items-center">
+                            <span className="text-[10px] uppercase font-bold text-gray-400">Fed W/H</span>
+                            <span className="font-bold text-gray-700">${taxResult.fedIncomeTax.toFixed(2)}</span>
+                        </div>
                     </div>
                 </div>
 
